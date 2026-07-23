@@ -2,73 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import { FiArrowUpRight, FiEye, FiEyeOff } from "react-icons/fi";
-
-const mockReachData = [
-  {
-    name: "Province1",
-    value: 85,
-    nepaliName: "कोशी प्रदेश (Province 1)",
-    reach: "1.2M reached",
-    growth: "+12.3%",
-  },
-  {
-    name: "Province2",
-    value: 45,
-    nepaliName: "मधेश प्रदेश (Province 2)",
-    reach: "680K reached",
-    growth: "-2.1%",
-  },
-  {
-    name: "Province3",
-    value: 95,
-    nepaliName: "बागमती प्रदेश (Province 3)",
-    reach: "2.4M reached",
-    growth: "+24.6%",
-  },
-  {
-    name: "Province4",
-    value: 70,
-    nepaliName: "गण्डकी प्रदेश (Province 4)",
-    reach: "920K reached",
-    growth: "+8.4%",
-  },
-  {
-    name: "Province5",
-    value: 60,
-    nepaliName: "लुम्बिनी प्रदेश (Province 5)",
-    reach: "810K reached",
-    growth: "+4.2%",
-  },
-  {
-    name: "Province6",
-    value: 30,
-    nepaliName: "कर्णाली प्रदेश (Province 6)",
-    reach: "210K reached",
-    growth: "+1.5%",
-  },
-  {
-    name: "Province7",
-    value: 40,
-    nepaliName: "सुदूरपश्चिम प्रदेश (Province 7)",
-    reach: "340K reached",
-    growth: "+3.8%",
-  },
-];
-
-const ageDemographics = [
-  { label: "18–25", male: 18, female: 32, other: 50, total: 2983, pct: "24%" },
-  { label: "26–35", male: 60, female: 8, other: 32, total: 3729, pct: "30%" },
-  { label: "36+", male: 61, female: 33, other: 6, total: 3232, pct: "26%" },
-];
-
-const timeOptions = [
-  { label: "This week", value: "this_week" },
-  { label: "Last week", value: "last_week" },
-  { label: "This month", value: "this_month" },
-  { label: "Last month", value: "last_month" },
-  { label: "Last 3 months", value: "last_3_months" },
-  { label: "This year", value: "this_year" },
-];
+import {
+  PROVINCES,
+  AGE_DEMOGRAPHICS,
+  TIME_OPTIONS,
+} from "../../shared/constants";
 
 function TimePeriodDropdown({ value, onChange }) {
   const [open, setOpen] = useState(false);
@@ -82,7 +20,7 @@ function TimePeriodDropdown({ value, onChange }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const selected = timeOptions.find((o) => o.value === value);
+  const selected = TIME_OPTIONS.find((o) => o.value === value);
 
   return (
     <div className="relative" ref={ref}>
@@ -110,7 +48,7 @@ function TimePeriodDropdown({ value, onChange }) {
 
       {open && (
         <div className="absolute right-0 top-full mt-1.5 w-40 bg-neutral-800 border border-neutral-700/60 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-          {timeOptions.map((opt) => (
+          {TIME_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => {
@@ -162,7 +100,7 @@ function DemographicsPanel({ visible, onToggle }) {
           </div>
 
           <div className="flex flex-col gap-4">
-            {ageDemographics.map((row) => (
+            {AGE_DEMOGRAPHICS.map((row) => (
               <div key={row.label}>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-[11px] text-gray-400 font-medium">
@@ -252,7 +190,7 @@ export default function NepalReachMap() {
   }
 
   const labelFormatter = (params) => {
-    const region = mockReachData.find((r) => r.name === params.name);
+    const region = PROVINCES.find((r) => r.name === params.name);
     return region ? region.growth : "";
   };
 
@@ -318,7 +256,7 @@ export default function NepalReachMap() {
           },
         },
         selectedMode: "single",
-        data: mockReachData,
+        data: PROVINCES,
       },
     ],
   };

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import NepalReachMap from "./NepalReachMap";
+import NepalReachMap from "../analytics/NepalReachMap";
 import {
   FiZap,
   FiSearch,
@@ -29,8 +29,8 @@ import {
   FiBell,
 } from "react-icons/fi";
 
-import InstagramIcon from "../assets/instagram.svg";
-import LinkedinIcon from "../assets/linkedin.svg";
+import InstagramIcon from "../../assets/icons/instagram.svg";
+import LinkedinIcon from "../../assets/icons/linkedin.svg";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
