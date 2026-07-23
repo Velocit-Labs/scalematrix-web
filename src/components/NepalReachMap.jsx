@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import { FiArrowUpRight, FiEye, FiEyeOff } from "react-icons/fi";
-import nepalGeoJSON from "../assets/nepal.geojson";
 
 const mockReachData = [
   {
@@ -227,13 +226,16 @@ export default function NepalReachMap() {
   const [showDemographics, setShowDemographics] = useState(true);
 
   useEffect(() => {
-    try {
-      echarts.registerMap("Nepal", nepalGeoJSON);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error registering Nepal GeoJSON:", err);
-      setLoading(false);
-    }
+    fetch("/nepal.geojson")
+      .then((res) => res.json())
+      .then((data) => {
+        echarts.registerMap("Nepal", data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error loading Nepal GeoJSON:", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {
