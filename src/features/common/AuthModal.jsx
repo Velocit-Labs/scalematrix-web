@@ -4,25 +4,30 @@ import {
   FiLock, 
   FiUser, 
   FiLoader, 
-  FiCheckCircle, 
-  FiAlertCircle 
+  FiEye,
+  FiEyeOff,
+  FiArrowRight,
+  FiAlertCircle, 
+  FiCheckCircle 
 } from 'react-icons/fi';
 import { apiCall } from '../../shared/utils/api';
 
 export default function AuthModal({ onAuthenticated }) {
-  const [authMode, setAuthMode] = useState('choice'); // 'choice' | 'login' | 'register' | 'otp'
+  // Mode: 'login' | 'register' | 'otp'
+  const [mode, setMode] = useState('login');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Form states
+  // Form inputs
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
 
-  const switchMode = (mode) => {
-    setAuthMode(mode);
+  const switchMode = (newMode) => {
+    setMode(newMode);
     setErrorMessage('');
     setSuccessMessage('');
   };
@@ -63,7 +68,7 @@ export default function AuthModal({ onAuthenticated }) {
       });
 
       setSuccessMessage(res.message || 'Verification code sent to your email.');
-      setAuthMode('otp');
+      setMode('otp');
     } catch (err) {
       setErrorMessage(err.message || 'Registration failed. Please check your details.');
     } finally {
@@ -90,7 +95,7 @@ export default function AuthModal({ onAuthenticated }) {
     } catch (err) {
       if (err.message.includes('not verified')) {
         setSuccessMessage('Please enter the verification code sent to your email.');
-        setAuthMode('otp');
+        setMode('otp');
       } else {
         setErrorMessage(err.message || 'Invalid email or password.');
       }
@@ -99,7 +104,7 @@ export default function AuthModal({ onAuthenticated }) {
     }
   };
 
-  // OTP Verification Flow
+  // Verify OTP Flow
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -140,198 +145,251 @@ export default function AuthModal({ onAuthenticated }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-neutral-950/95 backdrop-blur-md flex items-center justify-center z-50 p-4 font-sans select-none overflow-y-auto">
-      <div className="bg-[#121214] rounded-3xl p-8 max-w-sm w-full shadow-2xl space-y-6 text-center">
+    <div className="fixed inset-0 bg-[#09090b] flex items-center justify-center z-50 p-4 font-sans select-none overflow-y-auto">
+      
+      {/* Background Decorative Orbit & Gradient Glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-900/20 rounded-full blur-[140px]" />
+        <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50%" cy="50%" r="350" fill="none" stroke="url(#purpleGradient)" strokeWidth="1" strokeDasharray="4 6" />
+          <circle cx="50%" cy="50%" r="500" fill="none" stroke="url(#purpleGradient)" strokeWidth="1" />
+          <defs>
+            <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#a855f7" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* Auth Card Container */}
+      <div className="relative z-10 w-full max-w-[410px] bg-[#121215] border border-neutral-800/80 rounded-3xl p-8 shadow-2xl space-y-6">
         
-        <div className="space-y-1.5">
-          <h2 className="text-xl font-extrabold text-white">Welcome to ScaleMatrix</h2>
-          <p className="text-neutral-500 text-xs">AI-powered social media operating system.</p>
+        {/* Logo & Header */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-600/30">
+              <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 24 24">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </div>
+            <span className="text-xl font-extrabold text-white tracking-tight">ScaleMatrix</span>
+          </div>
+
+          <div className="pt-2">
+            <h2 className="text-xl font-extrabold text-white tracking-tight">Welcome to ScaleMatrix</h2>
+            <p className="text-neutral-400 text-xs mt-1">AI-powered social media operating system.</p>
+          </div>
         </div>
 
         {/* Feedback Alerts */}
         {errorMessage && (
-          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-red-400 text-xs text-left">
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-red-400 text-xs">
             <FiAlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {successMessage && (
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2 text-emerald-400 text-xs text-left">
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2 text-emerald-400 text-xs">
             <FiCheckCircle className="w-4 h-4 flex-shrink-0" />
             <span>{successMessage}</span>
           </div>
         )}
 
-        {/* Initial Choice Screen (Preserving Original Google Button UI) */}
-        {authMode === 'choice' && (
-          <div className="py-2 space-y-4">
-            <button
-              onClick={handleGoogleAuth}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3.5 px-5 py-3.5 bg-neutral-900 hover:bg-neutral-855 text-xs font-bold text-white rounded-full transition-all shadow-md cursor-pointer disabled:opacity-50"
-            >
-              {loading ? <FiLoader className="w-4 h-4 animate-spin" /> : <img src="/google.svg" className="w-4.5 h-4.5" alt="Google Logo" />}
-              <span>Continue with Google</span>
-            </button>
+        {/* Continue with Google Button */}
+        <button
+          type="button"
+          onClick={handleGoogleAuth}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-[#1f1f24] hover:bg-[#282830] text-white text-xs font-semibold rounded-full border border-neutral-800 transition-all cursor-pointer shadow-md disabled:opacity-50"
+        >
+          {loading ? (
+            <FiLoader className="w-4 h-4 animate-spin text-neutral-400" />
+          ) : (
+            <img src="/google.svg" className="w-4 h-4" alt="Google Logo" />
+          )}
+          <span>Continue with Google</span>
+        </button>
 
-            <div className="flex items-center gap-3 my-2">
-              <div className="h-px bg-neutral-900 flex-1" />
-              <span className="text-[10px] text-neutral-600 font-bold uppercase tracking-wider">or</span>
-              <div className="h-px bg-neutral-900 flex-1" />
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-2">
+          <div className="h-px bg-neutral-800/80 flex-1" />
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">OR</span>
+          <div className="h-px bg-neutral-800/80 flex-1" />
+        </div>
+
+        {/* LOGIN FORM */}
+        {mode === 'login' && (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Email address</label>
+              <div className="relative">
+                <FiMail className="absolute left-3.5 top-3.5 text-neutral-500 text-sm" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-full bg-[#17171c] border border-neutral-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-purple-600 transition-all"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-medium text-neutral-300">Password</label>
+                <button
+                  type="button"
+                  onClick={() => alert('Password reset link feature dispatches via email API.')}
+                  className="text-xs text-purple-400 hover:text-purple-300 font-medium transition-colors cursor-pointer"
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <div className="relative">
+                <FiLock className="absolute left-3.5 top-3.5 text-neutral-500 text-sm" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full bg-[#17171c] border border-neutral-800 rounded-xl py-2.5 pl-10 pr-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-purple-600 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-neutral-500 hover:text-neutral-300 cursor-pointer"
+                >
+                  {showPassword ? <FiEyeOff className="text-sm" /> : <FiEye className="text-sm" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/25 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {loading ? (
+                <FiLoader className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <span>Continue with Email</span>
+                  <FiArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            <div className="text-center pt-1 text-xs text-neutral-400">
+              Don't have an account?{' '}
               <button
                 type="button"
                 onClick={() => switchMode('register')}
-                className="py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-full text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="text-purple-400 hover:text-purple-300 font-bold transition-colors cursor-pointer"
               >
-                Sign Up
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode('login')}
-                className="py-3 px-4 bg-neutral-900 hover:bg-neutral-850 text-neutral-300 hover:text-white rounded-full text-xs font-bold transition-all border border-neutral-800 cursor-pointer"
-              >
-                Log In
+                Sign up
               </button>
             </div>
-          </div>
+          </form>
         )}
 
-        {/* Registration Form */}
-        {authMode === 'register' && (
-          <form onSubmit={handleRegister} className="space-y-3.5 text-left">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Full Name</label>
+        {/* REGISTER FORM */}
+        {mode === 'register' && (
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Full Name</label>
               <div className="relative">
-                <FiUser className="absolute left-3.5 top-3.5 text-neutral-500 text-xs" />
+                <FiUser className="absolute left-3.5 top-3.5 text-neutral-500 text-sm" />
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="John Doe"
-                  className="w-full bg-neutral-950 border border-neutral-900 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-700 focus:outline-none focus:border-purple-600 transition-colors"
+                  placeholder="Enter your full name"
+                  className="w-full bg-[#17171c] border border-neutral-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-purple-600 transition-all"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Work Email</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Email address</label>
               <div className="relative">
-                <FiMail className="absolute left-3.5 top-3.5 text-neutral-500 text-xs" />
+                <FiMail className="absolute left-3.5 top-3.5 text-neutral-500 text-sm" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@company.com"
-                  className="w-full bg-neutral-950 border border-neutral-900 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-700 focus:outline-none focus:border-purple-600 transition-colors"
+                  placeholder="Enter your email"
+                  className="w-full bg-[#17171c] border border-neutral-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-purple-600 transition-all"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Password</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Password</label>
               <div className="relative">
-                <FiLock className="absolute left-3.5 top-3.5 text-neutral-500 text-xs" />
+                <FiLock className="absolute left-3.5 top-3.5 text-neutral-500 text-sm" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="•••••••• (8+ chars, uppercase, number)"
-                  className="w-full bg-neutral-950 border border-neutral-900 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-700 focus:outline-none focus:border-purple-600 transition-colors"
+                  placeholder="Create a password (8+ chars)"
+                  className="w-full bg-[#17171c] border border-neutral-800 rounded-xl py-2.5 pl-10 pr-10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-purple-600 transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-neutral-500 hover:text-neutral-300 cursor-pointer"
+                >
+                  {showPassword ? <FiEyeOff className="text-sm" /> : <FiEye className="text-sm" />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/25 transition-all cursor-pointer disabled:opacity-50"
             >
-              {loading ? <FiLoader className="w-4 h-4 animate-spin" /> : <span>Send OTP Code</span>}
+              {loading ? (
+                <FiLoader className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <FiArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
 
-            <div className="text-center pt-1">
+            <div className="text-center pt-1 text-xs text-neutral-400">
+              Already have an account?{' '}
               <button
                 type="button"
-                onClick={() => switchMode('choice')}
-                className="text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer"
+                onClick={() => switchMode('login')}
+                className="text-purple-400 hover:text-purple-300 font-bold transition-colors cursor-pointer"
               >
-                &larr; Back to Auth Options
+                Log in
               </button>
             </div>
           </form>
         )}
 
-        {/* Login Form */}
-        {authMode === 'login' && (
-          <form onSubmit={handleLogin} className="space-y-3.5 text-left">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Email</label>
-              <div className="relative">
-                <FiMail className="absolute left-3.5 top-3.5 text-neutral-500 text-xs" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@company.com"
-                  className="w-full bg-neutral-950 border border-neutral-900 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-700 focus:outline-none focus:border-purple-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Password</label>
-              <div className="relative">
-                <FiLock className="absolute left-3.5 top-3.5 text-neutral-500 text-xs" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-neutral-950 border border-neutral-900 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-neutral-700 focus:outline-none focus:border-purple-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
-            >
-              {loading ? <FiLoader className="w-4 h-4 animate-spin" /> : <span>Sign In</span>}
-            </button>
-
-            <div className="text-center pt-1">
-              <button
-                type="button"
-                onClick={() => switchMode('choice')}
-                className="text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer"
-              >
-                &larr; Back to Auth Options
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* OTP Verification Form */}
-        {authMode === 'otp' && (
-          <form onSubmit={handleVerifyOTP} className="space-y-3.5 text-left">
-            <div className="text-center space-y-1 pb-1">
+        {/* OTP VERIFICATION FORM */}
+        {mode === 'otp' && (
+          <form onSubmit={handleVerifyOTP} className="space-y-4">
+            <div className="text-center space-y-1">
               <p className="text-xs text-neutral-400">Enter 6-digit verification code sent to:</p>
               <p className="text-xs font-bold text-purple-400 font-mono">{email}</p>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">OTP Code</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">OTP Code</label>
               <input
                 type="text"
                 required
@@ -339,14 +397,14 @@ export default function AuthModal({ onAuthenticated }) {
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
-                className="w-full bg-neutral-950 border border-neutral-900 rounded-xl py-2.5 text-center text-lg font-mono tracking-widest text-purple-300 placeholder-neutral-800 focus:outline-none focus:border-purple-600 transition-colors"
+                className="w-full bg-[#17171c] border border-neutral-800 rounded-xl py-2.5 text-center text-lg font-mono tracking-widest text-purple-300 placeholder-neutral-700 focus:outline-none focus:border-purple-600 transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || otpCode.length !== 6}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/25 transition-all cursor-pointer disabled:opacity-50"
             >
               {loading ? <FiLoader className="w-4 h-4 animate-spin" /> : <span>Verify & Continue</span>}
             </button>
@@ -371,11 +429,12 @@ export default function AuthModal({ onAuthenticated }) {
           </form>
         )}
 
-        <div className="h-px bg-neutral-900" />
-        <p className="text-[10px] text-neutral-600 text-center leading-normal">
+        {/* Footer */}
+        <div className="pt-2 text-[11px] text-neutral-500 text-center leading-relaxed">
           By continuing, you accept our <br />
-          <span className="text-neutral-500 hover:underline cursor-pointer">Privacy Policy</span> and <span className="text-neutral-500 hover:underline cursor-pointer">Terms of Use</span>.
-        </p>
+          <span className="text-neutral-400 hover:underline cursor-pointer">Privacy Policy</span> and{' '}
+          <span className="text-neutral-400 hover:underline cursor-pointer">Terms of Use</span>.
+        </div>
       </div>
     </div>
   );
