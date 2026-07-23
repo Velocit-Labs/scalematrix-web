@@ -8,18 +8,18 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 
-import homeIcon from "../assets/home.svg";
-import scriptIcon from "../assets/scripts.svg";
-import queueIcon from "../assets/queue.svg";
-import chatbotIcon from "../assets/chatbot.svg";
-import settingsIcon from "../assets/settings.svg";
-import chartIcon from "../assets/chart.svg";
-import calendarIcon from "../assets/calendar.svg";
-import libraryIcon from "../assets/library.svg";
-import autopilotIcon from "../assets/autopilot.svg";
-import memoryIcon from "../assets/memory.svg";
-import helpIcon from "../assets/help.svg";
-import replyIcon from "../assets/reply.svg";
+import homeIcon from "../../assets/icons/home.svg";
+import scriptIcon from "../../assets/icons/scripts.svg";
+import queueIcon from "../../assets/icons/queue.svg";
+import chatbotIcon from "../../assets/icons/chatbot.svg";
+import settingsIcon from "../../assets/icons/settings.svg";
+import chartIcon from "../../assets/icons/chart.svg";
+import calendarIcon from "../../assets/icons/calendar.svg";
+import libraryIcon from "../../assets/icons/library.svg";
+import autopilotIcon from "../../assets/icons/autopilot.svg";
+import memoryIcon from "../../assets/icons/memory.svg";
+import helpIcon from "../../assets/icons/help.svg";
+import replyIcon from "../../assets/icons/reply.svg";
 
 const SvgIcon = ({ src, alt }) => (
   <img src={src} alt={alt} className="w-4 h-4 invert" />

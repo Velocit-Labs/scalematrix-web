@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Strategy from './Strategy';
-import Audit from './Audit';
-import Competitors from './Competitors';
+import Audit from '../analytics/Audit';
+import Competitors from '../analytics/Competitors';
 
 export default function StrategyConsole({ settings }) {
   const [activeTab, setActiveTab] = useState('strategy'); // 'strategy', 'audit', 'competitors'

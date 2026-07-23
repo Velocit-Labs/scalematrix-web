@@ -19,8 +19,8 @@ import {
   FiMenu,
 } from "react-icons/fi";
 
-import InstagramIcon from "../assets/instagram.svg";
-import LinkedinIcon from "../assets/linkedin.svg";
+import InstagramIcon from "../../assets/icons/instagram.svg";
+import LinkedinIcon from "../../assets/icons/linkedin.svg";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 

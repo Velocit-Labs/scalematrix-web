@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "./components/Sidebar";
-import NotificationsDrawer from "./components/NotificationsDrawer";
-import Home from "./components/Home";
-import StrategyConsole from "./components/StrategyConsole";
-import Planner from "./components/Planner";
-import Studio from "./components/Studio";
-import Advisor from "./components/Advisor";
-import Settings from "./components/Settings";
-import Onboarding from "./components/Onboarding";
-import Search from "./components/Search";
-import Analytics from "./components/Analytics";
-import Schedule from "./components/Schedule";
+import { Sidebar, NotificationsDrawer } from "./shared/components";
+import {
+  Home,
+  StrategyConsole,
+  Planner,
+  Studio,
+  Advisor,
+  Settings,
+  Onboarding,
+  Search,
+  Analytics,
+  Schedule,
+} from "./features";
+import {
+  getOnboardingStatus,
+  setOnboardingStatus,
+  getSettings,
+  saveSettings,
+  getScriptHistory,
+  saveScriptHistory,
+} from "./shared/utils";
+import { DEFAULT_METRICS } from "./shared/constants";
 
 export default function App() {
   const [activeView, setActiveView] = useState("dashboard");
   const [isOnboarded, setIsOnboarded] = useState(
-    () => localStorage.getItem("scalematrix_onboarded") === "true"
+    () => getOnboardingStatus()
   );
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -29,57 +39,30 @@ export default function App() {
   const [isConnecting, setIsConnecting] = useState(false);
 
   // Settings
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem("scalematrix_settings");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          composioApiKey: "",
-          ollamaUrl: "http://localhost:11434",
-          ollamaModel: "llama3.1",
-        };
-  });
+  const [settings, setSettings] = useState(() => getSettings());
 
   // Mock data states
   const [mediaPosts, setMediaPosts] = useState([]);
   const [igInsights, setIgInsights] = useState(null);
-  const [metrics, setMetrics] = useState({
-    platforms: {},
-    topPerforming: [],
-    growthScore: 80,
-    growthOpportunities: [],
-  });
+  const [metrics, setMetrics] = useState(DEFAULT_METRICS);
 
   const [topic, setTopic] = useState("");
   const [generatedScript, setGeneratedScript] = useState("");
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
-  const [scriptHistory, setScriptHistory] = useState(() => {
-    const saved = localStorage.getItem("scalematrix_script_history");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error("Failed to parse script history:", e);
-      }
-    }
-    return [];
-  });
+  const [scriptHistory, setScriptHistory] = useState(() => getScriptHistory());
 
   const [sharedCaption, setSharedCaption] = useState("");
   const [sharedMediaUrl, setSharedMediaUrl] = useState("");
 
   // Sync script history to localStorage when changed
   useEffect(() => {
-    localStorage.setItem(
-      "scalematrix_script_history",
-      JSON.stringify(scriptHistory)
-    );
+    saveScriptHistory(scriptHistory);
   }, [scriptHistory]);
 
   // Save settings helper
   const handleSaveSettings = (newSettings) => {
     setSettings(newSettings);
-    localStorage.setItem("scalematrix_settings", JSON.stringify(newSettings));
+    saveSettings(newSettings);
   };
 
   // Mock sync data
@@ -195,7 +178,7 @@ export default function App() {
         <Onboarding
           onComplete={() => {
             setIsOnboarded(true);
-            localStorage.setItem("scalematrix_onboarded", "true");
+            setOnboardingStatus(true);
             syncData();
           }}
           settings={settings}
